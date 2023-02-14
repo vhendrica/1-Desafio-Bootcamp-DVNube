@@ -1,0 +1,14 @@
+trigger InscricaoTrigger on Inscricao__c (after update) 
+{
+    InscricaoTriggerHandler handler = new InscricaoTriggerHandler();
+
+    
+    switch on Trigger.operationType 
+    {
+        when AFTER_UPDATE
+        {
+            handler.verificaStatus(Trigger.new, Trigger.oldMap);
+        }
+    }
+    
+}
