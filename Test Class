@@ -1,0 +1,52 @@
+@isTest
+public class InscricaoTriggerHandlerTest {
+    
+    @isTest
+    public static void testVerificaStatus() {
+        // Inserir dados de teste
+        List<Inscricao__c> inscricoes = new List<Inscricao__c>();
+        Inscricao__c inscricao = new Inscricao__c();
+        inscricao.NomeCompleto__c = 'InscricaoTrigger';
+        inscricao.Status__c = 'Em análise';
+        inscricoes.add(inscricao);
+        insert inscricoes;
+        
+        // Atualizar as iscrições pra entrar no if
+        List<Inscricao__c> inscricoesAtualizadas = new List<Inscricao__c>();
+        Inscricao__c inscricaoAtualizada = [SELECT Id, Status__c FROM Inscricao__c WHERE Id =: inscricao.Id];
+        inscricaoAtualizada.Status__c = 'Aprovado';
+        inscricoesAtualizadas.add(inscricaoAtualizada);
+        update inscricoesAtualizadas;  
+        
+        
+        // Instanciar a classe InscricaoTriggerHandler
+        InscricaoTriggerHandler handler = new InscricaoTriggerHandler();
+        
+        // Recuperar o map de inscrições antigas atualizadas
+        Map<Id, Inscricao__c> inscricoesAntigas = new Map<Id, Inscricao__c>();
+        for (Inscricao__c i : [SELECT Id, Status__c FROM Inscricao__c WHERE Id IN :inscricoesAtualizadas]) {
+            inscricoesAntigas.put(i.Id, i);
+        }
+        
+        // Chamar o método verificaStatus da classe InscricaoTriggerHandler
+        handler.verificaStatus(inscricoesAtualizadas, inscricoesAntigas);
+        
+        
+        // Verificar se os dados foram inseridos corretamente
+        List<Aluno__c> alunos = [SELECT Id, Inscricao__c FROM Aluno__c];
+        for (Aluno__c aluno : alunos) 
+        {
+            Boolean encontrado = false;
+            for (Inscricao__c inscricaoC : inscricoesAtualizadas)
+            {
+                if (aluno.Inscricao__c == inscricaoC.Id)
+                {
+                    encontrado = true;
+                }
+            }
+            System.assertEquals(true, encontrado, 'A inscrição do aluno não foi encontrada na lista de inscrições atualizadas');
+        }
+        System.assertEquals(1, alunos.size());
+        
+    }
+}
