@@ -1,0 +1,35 @@
+public class InscricaoTriggerHandler 
+{
+    
+public void verificaStatus(List<Inscricao__c> inscricoesNova, Map<Id, Inscricao__c> inscricoesAntiga) 
+    {
+     List<Aluno__c> alunosAprovados = new List<Aluno__c>();
+        for (Inscricao__c inscricao : inscricoesNova)
+        {         
+            Inscricao__c inscricaoAntiga = inscricoesAntiga.get(inscricao.id);
+            String STATUS_APROVADO = 'Aprovado';
+            if (inscricao.Status__c == STATUS_APROVADO && inscricaoAntiga.Status__c != inscricao.Status__c )
+            {
+                alunosAprovados.add(criaAluno(inscricao));
+            }
+        }
+        
+     Database.insert(alunosAprovados, false);
+    }
+    
+private Aluno__c criaAluno(Inscricao__c inscricao) 
+    {
+        Aluno__c aluno = new Aluno__c();
+        aluno.Inscricao__c = inscricao.Id;
+        aluno.NomeCompleto__c = inscricao.NomeCompleto__c;
+        aluno.DataNascimento__c = inscricao.DataNascimento__c;
+        aluno.Email__c = inscricao.Email__c;
+        aluno.Curso__c = inscricao.Curso__c;
+        aluno.Github__c = inscricao.Github__c;
+        aluno.Linkedin__c = inscricao.Linkedin__c;
+        aluno.Trailblazer__c = inscricao.Trailblazer__c;
+        aluno.Telefone__c = inscricao.Telefone__c;
+        return aluno;
+    }
+    
+}
